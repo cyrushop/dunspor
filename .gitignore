@@ -1,0 +1,9 @@
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+logs/
+
+# Zebra SDK binaries are licensed by Zebra; copy them in locally, do not commit.
+fx9600-gpio/lib/*.dll

@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows console app. Needs the Zebra FX Series Host .NET SDK binaries in ..\..\lib\
+       (see lib\README.md). RFIDAPI32PC.dll in the SDK is 64-bit, so the app runs as x64. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>Fx9600Gpio</AssemblyName>
+    <RootNamespace>Fx9600Gpio</RootNamespace>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ZebraLibDir>$(MSBuildThisFileDirectory)..\..\lib\</ZebraLibDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets the project build on machines without the .NET Framework targeting pack. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fx9600Gpio.Core\Fx9600Gpio.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="Symbol.RFID3.Host">
+      <HintPath>$(ZebraLibDir)Symbol.RFID3.Host.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- Native driver loaded by Symbol.RFID3.Host.dll at run time. -->
+    <None Include="$(ZebraLibDir)RFIDAPI32PC.dll" Condition="Exists('$(ZebraLibDir)RFIDAPI32PC.dll')">
+      <Link>RFIDAPI32PC.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="CheckZebraSdk" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(ZebraLibDir)Symbol.RFID3.Host.dll')"
+           Text="Symbol.RFID3.Host.dll not found in $(ZebraLibDir). Copy it from the Zebra FX Series Host .NET SDK (SDK\Symbol.RFID3.Host.dll). See fx9600-gpio\lib\README.md." />
+    <Warning Condition="!Exists('$(ZebraLibDir)RFIDAPI32PC.dll')"
+             Text="RFIDAPI32PC.dll not found in $(ZebraLibDir). The build works, but the program will not run without it. Copy Driver\64bits\RFIDAPI32PC.dll from the Zebra SDK." />
+  </Target>
+
+</Project>
